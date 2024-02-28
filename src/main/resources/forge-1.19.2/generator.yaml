@@ -1,6 +1,6 @@
 name: Minecraft Forge for @minecraft (@buildfileversion)
 status: deprecated
-buildfileversion: 43.3.5
+buildfileversion: 43.3.2
 subversion: 1.0.1
 
 import:
@@ -64,10 +64,10 @@ base_templates:
     writer: file
     name: "@RESROOT/META-INF/accesstransformer.cfg"
     condition_any:
-      - ${w.hasElementsOfType('animateditem')}
-      - ${w.hasElementsOfType('gamerule')}
+      - ${w.hasGameRulesOfType('Number') || w.hasGameRulesOfType('Logic')}
+      - ${w.hasElementsOfType('dimension')}
+      - ${w.hasElementsOfType('biome')}
       - ${w.hasElementsOfType('feature')}
-      - "${w.getGElementsOfType('biome')?filter(e -> e.spawnBiome || e.spawnInCaves || e.spawnBiomeNether)?size != 0}"
   - template: elementinits/javamodels.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/init/@JavaModNameModels.java"
     condition: hasJavaModels()

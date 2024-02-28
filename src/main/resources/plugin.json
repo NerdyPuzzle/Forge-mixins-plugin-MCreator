@@ -1,6 +1,7 @@
 {
   "id": "forge_mixins",
-  "minversion": 202300400000,
+  "minversion": 202300300000,
+  "maxversion": 202300399999,
   "weight": 4200,
   "javaplugin": "net.nerdypuzzle.forgemixins.Launcher",
   "info": {
