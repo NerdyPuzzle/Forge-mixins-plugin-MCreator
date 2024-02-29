@@ -66,6 +66,7 @@ base_templates:
     writer: file
     name: "@RESROOT/META-INF/accesstransformer.cfg"
     condition_any:
+      - ${w.hasElementsOfType('endbiome')}
       - ${w.hasElementsOfType('feature')}
       - hasBiomesInVanillaDimensions()
   - template: elementinits/javamodels.java.ftl
