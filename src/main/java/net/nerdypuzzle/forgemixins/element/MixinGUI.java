@@ -29,9 +29,6 @@ public class MixinGUI extends ModElementGUI<Mixin> {
             modElement.setCodeLock(true);
         }
         this.codeEditorView = new CodeEditorView(mcreator, modElementFile);
-
-        this.initGUI();
-        super.finalizeGUI();
     }
 
     public ViewBase showView() {
