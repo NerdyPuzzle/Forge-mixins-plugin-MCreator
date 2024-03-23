@@ -14,11 +14,10 @@ import java.util.List;
 
 public class MixinGUI extends ModElementGUI<Mixin> {
     private final CodeEditorView codeEditorView;
-    private Mixin generatableElement;
 
     public MixinGUI(MCreator mcreator, ModElement modElement, boolean editingMode) {
         super(mcreator, modElement, editingMode);
-        generatableElement = new Mixin(modElement);
+        Mixin generatableElement = new Mixin(modElement);
         List<File> modElementFiles = mcreator.getGenerator().getModElementGeneratorTemplatesList(generatableElement).stream().map(GeneratorTemplate::getFile).toList();
         File modElementFile = (File)modElementFiles.get(0);
         if (!editingMode) {
