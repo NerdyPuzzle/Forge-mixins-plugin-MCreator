@@ -2,6 +2,7 @@ package net.nerdypuzzle.forgemixins.element;
 
 import net.mcreator.generator.GeneratorTemplate;
 import net.mcreator.ui.MCreator;
+import net.mcreator.ui.MCreatorApplication;
 import net.mcreator.ui.ide.CodeEditorView;
 import net.mcreator.ui.modgui.ModElementGUI;
 import net.mcreator.ui.validation.AggregatedValidationResult;
@@ -9,7 +10,10 @@ import net.mcreator.ui.views.ViewBase;
 import net.mcreator.workspace.elements.FolderElement;
 import net.mcreator.workspace.elements.ModElement;
 
+import javax.annotation.Nullable;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class MixinGUI extends ModElementGUI<Mixin> {
@@ -46,4 +50,9 @@ public class MixinGUI extends ModElementGUI<Mixin> {
     public Mixin getElementFromGUI() {
         return new Mixin(modElement);
     }
+
+    @Override public @Nullable URI contextURL() throws URISyntaxException {
+        return null;
+    }
+
 }

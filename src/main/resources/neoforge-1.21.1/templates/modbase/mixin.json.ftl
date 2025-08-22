@@ -1,4 +1,7 @@
 <#assign mixins = []>
+<#if w.getGElementsOfType('biome')?filter(e -> e.spawnBiome || e.spawnInCaves || e.spawnBiomeNether)?size != 0>
+	<#assign mixins = mixins + ['NoiseGeneratorSettingsMixin']>
+</#if>
 <#list w.getWorkspace().getModElements() as element>
   <#assign providedmixins = []>
   <#if element.getGeneratableElement().mixins??>
@@ -14,15 +17,14 @@
 </#list>
 {
   "required": true,
-  "package": "${package}.mixins",
+  "package": "${package}.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    <#if mixins?has_content>
-      <#list mixins as mixin>
-        "${mixin}"<#sep>,
-      </#list>
-    </#if>
+    <#list mixins as mixin>"${mixin}"<#sep>,</#list>
   ],
   "client": [],
-  "minVersion": "0.8"
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8.4"
 }

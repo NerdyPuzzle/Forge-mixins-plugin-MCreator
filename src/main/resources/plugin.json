@@ -1,13 +1,13 @@
 {
   "id": "forge_mixins",
-  "weight": 4200,
+  "weight": 100,
   "javaplugin": "net.nerdypuzzle.forgemixins.Launcher",
   "supportedversions": [
-    2024004
+    2025002
   ],
   "info": {
     "name": "Forge mixins",
-    "version": "1.5",
+    "version": "1.6",
     "description": "Adds support for mixins on forge and neoforge",
     "author": "NerdyPuzzle"
   }
