@@ -3,12 +3,11 @@
   "weight": 100,
   "javaplugin": "net.nerdypuzzle.forgemixins.Launcher",
   "supportedversions": [
-    202500342611,
-    2025003
+    2026001
   ],
   "info": {
     "name": "Forge mixins",
-    "version": "1.7",
+    "version": "1.8",
     "description": "Allows plugins to add new mixins or users to write their own",
     "author": "NerdyPuzzle"
   }
