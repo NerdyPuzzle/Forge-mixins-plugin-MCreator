@@ -1,5 +1,3 @@
-import groovy.json.JsonSlurper
-
 plugins {
     id "java"
 }
@@ -11,19 +9,20 @@ repositories {
 }
 
 group = 'net.nerdypuzzle.forgemixins'
-version = new JsonSlurper().parse(file('src/main/resources/plugin.json'))['info']['version']
+def matcher = file('src/main/resources/plugin.json').text =~ /"version"\s*:\s*"([^"]+)"/
+version = matcher ? matcher[0][1] : '1.0'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 dependencies {
-    implementation project(':MCreator')
+    implementation project(path: ':MCreator', configuration: 'default')
 
-    project(':MCreator').afterEvaluate(() ->
+    project(':MCreator').afterEvaluate {
             project(":MCreator").configurations.named("implementation").get().dependencies.each {
                 //noinspection ForeignDelegate
                 implementation it
             }
-    )
+    }
 }
 
 tasks.jar {

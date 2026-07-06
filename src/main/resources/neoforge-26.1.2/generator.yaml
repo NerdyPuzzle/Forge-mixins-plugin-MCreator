@@ -1,0 +1,5 @@
+base_templates:
+  - template: modbase/mixin.json.ftl
+    writer: json
+    name: "@RESROOT/@modid.mixins.json"
+    _merge_policy: override_all
