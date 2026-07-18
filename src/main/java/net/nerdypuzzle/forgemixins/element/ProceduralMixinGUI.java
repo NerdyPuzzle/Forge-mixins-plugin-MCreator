@@ -73,7 +73,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             }
         });
 
-        procedure = new ProcedureSelector(this, this.mcreator,
+        procedure = new ProcedureSelector(this.withEntry(L10N.t("elementgui.proceduralmixin.")), this.mcreator,
                 L10N.t("elementgui.proceduralmixin.procedure"), AbstractProcedureSelector.Side.BOTH,
                 true, VariableTypeLoader.BuiltInTypes.LOGIC).makeReturnValueOptional();
         procedure.refreshList(null);
