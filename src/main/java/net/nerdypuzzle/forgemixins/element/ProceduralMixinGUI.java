@@ -117,18 +117,28 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         selectionPanel.add(labelPanel, BorderLayout.WEST);
         selectionPanel.add(controlPanel, BorderLayout.CENTER);
 
-        procWrap = new JPanel(new BorderLayout());
+        procWrap = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         procWrap.setOpaque(false);
-        procWrap.add(procedure, BorderLayout.CENTER);
+        procWrap.add(procedure);
 
-        JPanel procOuterWrap = new JPanel(new GridLayout(2, 1, 5, 5));
+        returnIndicator.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JPanel procOuterWrap = new JPanel();
+        procOuterWrap.setLayout(new BoxLayout(procOuterWrap, BoxLayout.Y_AXIS));
         procOuterWrap.setOpaque(false);
+        procOuterWrap.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+        
+        procWrap.setAlignmentX(Component.CENTER_ALIGNMENT);
+        returnIndicator.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         procOuterWrap.add(procWrap);
+        procOuterWrap.add(Box.createVerticalStrut(5));
         procOuterWrap.add(returnIndicator);
 
-        JPanel topSection = new JPanel(new BorderLayout(5, 5));
+        JPanel topSection = new JPanel(new BorderLayout(0, 0));
         topSection.setOpaque(false);
-        topSection.add(PanelUtils.northAndCenterElement(selectionPanel, PanelUtils.totalCenterInPanel(procOuterWrap)));
+        topSection.add(selectionPanel, BorderLayout.NORTH);
+        topSection.add(procOuterWrap, BorderLayout.CENTER);
 
         JPanel pane1 = new JPanel(new BorderLayout());
         pane1.setOpaque(false);

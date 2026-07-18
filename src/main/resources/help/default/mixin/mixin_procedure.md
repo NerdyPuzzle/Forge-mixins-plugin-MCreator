@@ -1,6 +1,6 @@
 # Procedural Mixin Procedure
 
-The procedure executed when this Mixin triggers during gameplay. This allows you to insert custom logic directly into the native Minecraft or Forge methods you hook into.
+The procedure executed when this Mixin triggers during gameplay. This allows you to insert custom logic directly into the native Minecraft methods you hook into.
 
 ### Procedure Execution & Dependencies
 When your procedure runs, it will be automatically provided with:
