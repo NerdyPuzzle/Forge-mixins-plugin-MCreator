@@ -420,7 +420,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         int index = methodNameSelector.getSelectedIndex();
         if (index >= 0 && index < currentMethods.size()) {
             MethodSource<JavaClassSource> method = currentMethods.get(index);
-            mixin.rawMethodName = method.getName();
+            mixin.rawMethodName = method.isConstructor() ? "<init>" : method.getName();
             mixin.methodReturnType = method.getReturnType() != null ? method.getReturnType().getName() : "void";
             mixin.methodParameters = method.getParameters().stream()
                     .map(p -> p.getType().getName())
