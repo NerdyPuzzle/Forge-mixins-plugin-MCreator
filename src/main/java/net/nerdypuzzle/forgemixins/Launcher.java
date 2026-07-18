@@ -6,6 +6,8 @@ import net.mcreator.plugin.Plugin;
 import net.mcreator.plugin.events.PreGeneratorsLoadingEvent;
 import net.nerdypuzzle.forgemixins.element.Mixin;
 import net.nerdypuzzle.forgemixins.element.MixinGUI;
+import net.nerdypuzzle.forgemixins.element.ProceduralMixin;
+import net.nerdypuzzle.forgemixins.element.ProceduralMixinGUI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +20,10 @@ public class Launcher extends JavaPlugin {
 	public Launcher(Plugin plugin) {
 		super(plugin);
 
-		addListener(PreGeneratorsLoadingEvent.class, event -> register(new ModElementType<>("mixin", 'M', MixinGUI::new, Mixin.class)));
+		addListener(PreGeneratorsLoadingEvent.class, event -> {
+			register(new ModElementType<>("mixin", 'M', MixinGUI::new, Mixin.class));
+			register(new ModElementType<>("proceduralmixin", 'P', ProceduralMixinGUI::new, ProceduralMixin.class));
+		});
 
 		LOG.info("Forge mixins plugin was loaded");
 	}
