@@ -292,6 +292,13 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                 || simpleName.endsWith("Mob") || VANILLA_ENTITIES.contains(simpleName);
     }
 
+    private boolean isItemStackClass(String fqcn) {
+        if (fqcn == null) return false;
+        int lastDot = fqcn.lastIndexOf('.');
+        String simpleName = lastDot == -1 ? fqcn : fqcn.substring(lastDot + 1);
+        return simpleName.equals("ItemStack");
+    }
+
     private void updateProcedureDependencies() {
         int index = methodNameSelector.getSelectedIndex();
         if (index >= 0 && index < currentMethods.size()) {
@@ -301,12 +308,18 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             boolean hasEntityName = false;
             boolean hasWorldDependency = false;
 
+            boolean hasItemStackDependency = false;
+            boolean hasItemstackName = false;
+
             for (var param : method.getParameters()) {
                 String type = param.getType().getName();
                 String name = param.getName();
                 
                 if (name.equals("entity")) {
                     hasEntityName = true;
+                }
+                if (name.equals("itemstack")) {
+                    hasItemstackName = true;
                 }
 
                 if (type.equals("BlockPos")) {
@@ -328,6 +341,9 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                 if (mcType.equals("entity")) {
                     hasEntityDependency = true;
                 }
+                if (mcType.equals("itemstack")) {
+                    hasItemStackDependency = true;
+                }
 
                 dependencies.add(new Dependency(name, mcType));
             }
@@ -336,6 +352,10 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             if (isEntityClass(currentClass) && !hasEntityDependency) {
                 String depName = hasEntityName ? "mixinEntity" : "entity";
                 dependencies.add(new Dependency(depName, "entity"));
+            }
+            if (isItemStackClass(currentClass) && !hasItemStackDependency) {
+                String depName = hasItemstackName ? "mixinItemstack" : "itemstack";
+                dependencies.add(new Dependency(depName, "itemstack"));
             }
 
             String methodReturnType = method.getReturnType() != null ? method.getReturnType().getName() : "void";

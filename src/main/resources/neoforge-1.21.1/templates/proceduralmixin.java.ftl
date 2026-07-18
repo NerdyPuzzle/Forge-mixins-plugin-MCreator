@@ -40,6 +40,7 @@ public abstract class ${name}Mixin {
             <#assign procName = data.procedure.getName()>
             <#assign depsBuilder = []>
             <#assign needsImplicitEntity = "">
+            <#assign needsImplicitItemstack = "">
             <#list data.procedure.getDependencies(generator.getWorkspace()) as dep>
                 <#assign depsBuilder += [dep.getName()]>
                 <#if dep.getName() == "entity" && !data.methodParameterNames?seq_contains("entity")>
@@ -47,10 +48,18 @@ public abstract class ${name}Mixin {
                 <#elseif dep.getName() == "mixinEntity" && !data.methodParameterNames?seq_contains("mixinEntity")>
                     <#assign needsImplicitEntity = "mixinEntity">
                 </#if>
+                <#if dep.getName() == "itemstack" && !data.methodParameterNames?seq_contains("itemstack")>
+                    <#assign needsImplicitItemstack = "itemstack">
+                <#elseif dep.getName() == "mixinItemstack" && !data.methodParameterNames?seq_contains("mixinItemstack")>
+                    <#assign needsImplicitItemstack = "mixinItemstack">
+                </#if>
             </#list>
             
             <#if needsImplicitEntity?has_content>
                 Entity ${needsImplicitEntity} = (Entity) (Object) this;
+            </#if>
+            <#if needsImplicitItemstack?has_content>
+                ItemStack ${needsImplicitItemstack} = (ItemStack) (Object) this;
             </#if>
             
             <#assign hasWorld = false>
