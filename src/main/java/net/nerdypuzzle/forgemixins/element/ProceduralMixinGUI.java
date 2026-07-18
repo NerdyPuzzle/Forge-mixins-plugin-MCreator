@@ -42,6 +42,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
     private JComboBox<String> headTailSelector;
     private ProcedureSelector procedure;
     private JPanel procWrap;
+    private JLabel returnIndicator;
     private List<MethodSource<JavaClassSource>> currentMethods = new ArrayList<>();
     private String currentLoadedClass = null;
 
@@ -61,6 +62,10 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         classNameSelector = new SearchableComboBox<>();
         methodNameSelector = new SearchableComboBox<>();
         headTailSelector = new JComboBox<>(new String[]{"HEAD", "TAIL", "RETURN"});
+        
+        returnIndicator = new JLabel(" ");
+        returnIndicator.setFont(returnIndicator.getFont().deriveFont(Font.ITALIC, 11f));
+        returnIndicator.setForeground(Color.GRAY);
 
         classNameSelector.setRenderer(new DefaultListCellRenderer() {
             @Override
@@ -73,7 +78,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             }
         });
 
-        procedure = new ProcedureSelector(this.withEntry(L10N.t("elementgui.proceduralmixin.")), this.mcreator,
+        procedure = new ProcedureSelector(this.withEntry(L10N.t("mixin/mixin_procedure")), this.mcreator,
                 L10N.t("elementgui.proceduralmixin.procedure"), AbstractProcedureSelector.Side.BOTH,
                 true, VariableTypeLoader.BuiltInTypes.LOGIC).makeReturnValueOptional();
         procedure.refreshList(null);
@@ -112,13 +117,18 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         selectionPanel.add(labelPanel, BorderLayout.WEST);
         selectionPanel.add(controlPanel, BorderLayout.CENTER);
 
-        procWrap = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        procWrap = new JPanel(new BorderLayout());
         procWrap.setOpaque(false);
-        procWrap.add(procedure);
+        procWrap.add(procedure, BorderLayout.CENTER);
 
-        JPanel topSection = new JPanel(new BorderLayout(0, 10));
+        JPanel procOuterWrap = new JPanel(new GridLayout(2, 1, 5, 5));
+        procOuterWrap.setOpaque(false);
+        procOuterWrap.add(procWrap);
+        procOuterWrap.add(returnIndicator);
+
+        JPanel topSection = new JPanel(new BorderLayout(5, 5));
         topSection.setOpaque(false);
-        topSection.add(PanelUtils.northAndCenterElement(selectionPanel, PanelUtils.totalCenterInPanel(procWrap)));
+        topSection.add(PanelUtils.northAndCenterElement(selectionPanel, PanelUtils.totalCenterInPanel(procOuterWrap)));
 
         JPanel pane1 = new JPanel(new BorderLayout());
         pane1.setOpaque(false);
@@ -361,6 +371,14 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             String methodReturnType = method.getReturnType() != null ? method.getReturnType().getName() : "void";
             String mcTypeString = mapToMcType(methodReturnType);
             
+            if (methodReturnType.equals("void")) {
+                returnIndicator.setText("<html>Target method does not have a return value.</html>");
+            } else if (mcTypeString != null) {
+                returnIndicator.setText("<html>Target method returns <b>" + methodReturnType + "</b>. You can return <b>" + mcTypeString + "</b> in the procedure.</html>");
+            } else {
+                returnIndicator.setText("<html>Target method returns <b>" + methodReturnType + "</b> (Not directly supported, defaulting to logic cancel).</html>");
+            }
+            
             VariableType expectedReturnType = null;
             if (mcTypeString == null || mcTypeString.equals("world")) {
                 expectedReturnType = VariableTypeLoader.BuiltInTypes.LOGIC;
@@ -390,13 +408,13 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                 procWrap.removeAll();
                 
                 if (finalReturnType != null) {
-                    procedure = new ProcedureSelector(this, this.mcreator,
-                            "Mixin procedure", AbstractProcedureSelector.Side.BOTH, true,
+                    procedure = new ProcedureSelector(this.withEntry(L10N.t("mixin/mixin_procedure")), this.mcreator,
+                            L10N.t("elementgui.proceduralmixin.procedure"), AbstractProcedureSelector.Side.BOTH, true,
                             finalReturnType, deps).makeReturnValueOptional();
                 } else {
                     // No return type expected (could be unsupported non-void)
-                    procedure = new ProcedureSelector(this, this.mcreator,
-                            "Mixin procedure", AbstractProcedureSelector.Side.BOTH, true,
+                    procedure = new ProcedureSelector(this.withEntry(L10N.t("mixin/mixin_procedure")), this.mcreator,
+                            L10N.t("elementgui.proceduralmixin.procedure"), AbstractProcedureSelector.Side.BOTH, true,
                             deps).makeReturnValueOptional();
                 }
                 
