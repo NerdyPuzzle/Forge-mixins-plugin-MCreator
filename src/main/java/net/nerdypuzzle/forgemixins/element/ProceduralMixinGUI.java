@@ -381,6 +381,14 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             String methodReturnType = method.getReturnType() != null ? method.getReturnType().getName() : "void";
             String mcTypeString = mapToMcType(methodReturnType);
             
+            if (!methodReturnType.equals("void")) {
+                if (methodReturnType.equals("BlockPos")) {
+                    dependencies.add(new Dependency("returnValue", "vector"));
+                } else if (mcTypeString != null && !mcTypeString.equals("world")) {
+                    dependencies.add(new Dependency("returnValue", mcTypeString));
+                }
+            }
+            
             if (methodReturnType.equals("void")) {
                 returnIndicator.setText("<html>Target method does not have a return value.</html>");
             } else if (mcTypeString != null) {

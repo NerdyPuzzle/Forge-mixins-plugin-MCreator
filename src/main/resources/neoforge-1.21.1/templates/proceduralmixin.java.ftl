@@ -78,6 +78,31 @@ public abstract class ${name}Mixin {
             
             <#assign procReturnType = data.procedure.getReturnValueType(generator.getWorkspace())!"">
             
+            <#if data.methodReturnType != "void" && depsBuilder?seq_contains("returnValue")>
+                <#if data.methodReturnType == "int">
+                double returnValue = (double) ${callbackVar}.getReturnValueI();
+                <#elseif data.methodReturnType == "float">
+                double returnValue = (double) ${callbackVar}.getReturnValueF();
+                <#elseif data.methodReturnType == "boolean">
+                boolean returnValue = ${callbackVar}.getReturnValueZ();
+                <#elseif data.methodReturnType == "double">
+                double returnValue = ${callbackVar}.getReturnValueD();
+                <#elseif data.methodReturnType == "long">
+                double returnValue = (double) ${callbackVar}.getReturnValueJ();
+                <#elseif data.methodReturnType == "short">
+                double returnValue = (double) ${callbackVar}.getReturnValueS();
+                <#elseif data.methodReturnType == "byte">
+                double returnValue = (double) ${callbackVar}.getReturnValueB();
+                <#elseif data.methodReturnType == "char">
+                String returnValue = String.valueOf(${callbackVar}.getReturnValueC());
+                <#elseif data.methodReturnType == "BlockPos">
+                Vec3 returnValue = ${callbackVar}.getReturnValue() != null ? Vec3.atCenterOf((BlockPos) ${callbackVar}.getReturnValue()) : Vec3.ZERO;
+                <#else>
+                ${data.methodReturnType} returnValue = (${data.methodReturnType}) ${callbackVar}.getReturnValue();
+                </#if>
+            </#if>
+            
+            
             <#if procReturnType == "logic" && data.methodReturnType != "boolean">
                 if (!${procName}Procedure.execute(<#list depsBuilder as dep>${dep}<#sep>, </#list>)) {
                     ${callbackVar}.cancel();
