@@ -34,7 +34,7 @@ public abstract class ${name}Mixin {
 <#assign callbackClass = (data.methodReturnType == "void")?then("CallbackInfo", "CallbackInfoReturnable<" + boxType(data.methodReturnType) + ">")>
 <#assign callbackVar = (data.methodReturnType == "void")?then("ci", "cir")>
 
-    @Inject(method = "${data.rawMethodName}", at = @At("${data.headTail}"), cancellable = true, remap = false)
+    @Inject(method = "${data.rawMethodName}", at = @At("${data.headTail}"), cancellable = true)
     public void executeProcedure${name}(<#list data.methodParameters as type>${type} ${data.methodParameterNames[type?index]}, </#list>${callbackClass} ${callbackVar}) {
         <#if data.procedure?? && data.procedure.getName()?? && data.procedure.getName()?has_content && data.procedure.getName() != "null" && w.hasModElement(data.procedure.getName())>
             <#assign procName = data.procedure.getName()>
