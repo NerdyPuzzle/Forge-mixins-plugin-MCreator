@@ -1,8 +1,9 @@
 package net.nerdypuzzle.forgemixins.element;
 
 import net.mcreator.blockly.data.Dependency;
-import net.mcreator.element.parts.procedure.LogicProcedure;
 import net.mcreator.element.parts.procedure.Procedure;
+import net.mcreator.io.zip.ZipIO;
+import net.mcreator.java.ProjectJarManager;
 import net.mcreator.ui.MCreator;
 import net.mcreator.ui.component.SearchableComboBox;
 import net.mcreator.ui.component.util.PanelUtils;
@@ -11,11 +12,13 @@ import net.mcreator.ui.procedure.ProcedureSelector;
 import net.mcreator.ui.procedure.AbstractProcedureSelector;
 import net.mcreator.ui.validation.AggregatedValidationResult;
 import net.mcreator.workspace.elements.ModElement;
+import net.mcreator.workspace.elements.VariableType;
 import net.mcreator.workspace.elements.VariableTypeLoader;
 import net.mcreator.ui.init.L10N;
 
 import javax.annotation.Nullable;
 
+import org.fife.rsta.ac.java.buildpath.SourceLocation;
 import org.jboss.forge.roaster.Roaster;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.MethodSource;
@@ -26,9 +29,9 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -121,7 +124,8 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         pane1.setOpaque(false);
         pane1.add("Center", PanelUtils.totalCenterInPanel(topSection));
 
-        addPage("Procedural Mixin", pane1);
+        addPage("Procedural Mixin", pane1).lazyValidate(() -> (classNameSelector.getSelectedItem() != null && methodNameSelector.getSelectedItem() != null && procedure.getSelectedProcedure() != null)
+                ? new AggregatedValidationResult.PASS() : new AggregatedValidationResult.FAIL(L10N.t("elementgui.error.select_options")));
     }
 
     @Override
@@ -189,11 +193,11 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         if (className == null || className.isEmpty()) return;
 
         try {
-            net.mcreator.java.ProjectJarManager jarManager = mcreator.getGenerator().getProjectJarManager();
+            ProjectJarManager jarManager = mcreator.getGenerator().getProjectJarManager();
             if (jarManager != null) {
-                org.fife.rsta.ac.java.buildpath.SourceLocation sourceLocation = jarManager.getSourceLocForClass(className);
+                SourceLocation sourceLocation = jarManager.getSourceLocForClass(className);
                 if (sourceLocation != null) {
-                    String code = net.mcreator.io.zip.ZipIO.readCodeInZip(
+                    String code = ZipIO.readCodeInZip(
                             new File(sourceLocation.getLocationAsString()),
                             className.replace(".", "/") + ".java");
                     if (code != null) {
@@ -214,7 +218,20 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         }
     }
 
+    private static final Set<String> VANILLA_ENTITIES = new HashSet<>(Arrays.asList(
+        "Parrot", "Ocelot", "Wolf", "Cat", "Villager", "Zombie", "Skeleton", "Creeper", "Spider", "Slime", 
+        "Ghast", "Enderman", "Pig", "Sheep", "Cow", "Chicken", "Squid", "Bat", "Mooshroom", "IronGolem", 
+        "SnowGolem", "Horse", "Donkey", "Mule", "SkeletonHorse", "ZombieHorse", "Rabbit", "PolarBear", 
+        "Llama", "Fox", "Panda", "Turtle", "Dolphin", "Bee", "Strider", "Hoglin", "Zoglin", "Piglin", 
+        "PiglinBrute", "Warden", "Frog", "Tadpole", "Allay", "Camel", "Sniffer", "Axolotl", "GlowSquid", 
+        "Goat", "Vindicator", "Evoker", "Illusioner", "Pillager", "Ravager", "Witch", "Vex", "Guardian", 
+        "ElderGuardian", "Shulker", "Silverfish", "Endermite", "Phantom", "Drowned", "Husk", "Stray", 
+        "WitherSkeleton", "Blaze", "MagmaCube", "WitherBoss", "EnderDragon", "ZombieVillager", "TraderLlama", 
+        "WanderingTrader", "CaveSpider", "Breeze", "Bogged", "Armadillo", "Creaking"
+    ));
+
     private String mapToMcType(String javaType) {
+        if (javaType == null) return null;
         if (javaType.equals("int") || javaType.equals("float") || javaType.equals("double")
                 || javaType.equals("long") || javaType.equals("short") || javaType.equals("byte")) {
             return "number";
@@ -230,7 +247,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                 || javaType.equals("Mob") || javaType.equals("PathfinderMob")
                 || javaType.equals("Animal") || javaType.equals("AbstractHurtingProjectile")
                 || javaType.endsWith("Entity") || javaType.endsWith("Player")
-                || javaType.endsWith("Mob")) {
+                || javaType.endsWith("Mob") || VANILLA_ENTITIES.contains(javaType)) {
             return "entity";
         }
         if (javaType.equals("Level") || javaType.equals("ServerLevel")
@@ -238,7 +255,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                 || javaType.endsWith("Level") || javaType.endsWith("World")) {
             return "world";
         }
-        if (javaType.equals("Vec3") || javaType.equals("Vector3d")) {
+        if (javaType.equals("Vec3")) {
             return "vector";
         }
         if (javaType.equals("ItemStack")) {
@@ -255,6 +272,15 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
 
     private boolean isEntityClass(String fqcn) {
         if (fqcn == null) return false;
+        
+        if (fqcn.startsWith("net.minecraft.world.entity.") || fqcn.startsWith("net.minecraft.client.player.")) {
+            if (!fqcn.contains("EntityType") && !fqcn.contains("EntityDimensions") 
+                && !fqcn.contains("EntitySelector") && !fqcn.contains("EntityData") 
+                && !fqcn.contains("EntityEvent")) {
+                return true;
+            }
+        }
+        
         int lastDot = fqcn.lastIndexOf('.');
         String simpleName = lastDot == -1 ? fqcn : fqcn.substring(lastDot + 1);
         
@@ -263,7 +289,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                 || simpleName.equals("Mob") || simpleName.equals("PathfinderMob")
                 || simpleName.equals("Animal") || simpleName.equals("AbstractHurtingProjectile")
                 || simpleName.endsWith("Entity") || simpleName.endsWith("Player")
-                || simpleName.endsWith("Mob");
+                || simpleName.endsWith("Mob") || VANILLA_ENTITIES.contains(simpleName);
     }
 
     private void updateProcedureDependencies() {
@@ -315,7 +341,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             String methodReturnType = method.getReturnType() != null ? method.getReturnType().getName() : "void";
             String mcTypeString = mapToMcType(methodReturnType);
             
-            net.mcreator.workspace.elements.VariableType expectedReturnType = null;
+            VariableType expectedReturnType = null;
             if (mcTypeString == null || mcTypeString.equals("world")) {
                 expectedReturnType = VariableTypeLoader.BuiltInTypes.LOGIC;
             } else {
@@ -327,11 +353,12 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                     case "itemstack": expectedReturnType = VariableTypeLoader.BuiltInTypes.ITEMSTACK; break;
                     case "blockstate": expectedReturnType = VariableTypeLoader.BuiltInTypes.BLOCKSTATE; break;
                     case "damagesource": expectedReturnType = VariableTypeLoader.BuiltInTypes.DAMAGESOURCE; break;
+                    case "vector": expectedReturnType = VariableTypeLoader.BuiltInTypes.VECTOR; break;
                     default: expectedReturnType = VariableTypeLoader.BuiltInTypes.LOGIC; break;
                 }
             }
 
-            final net.mcreator.workspace.elements.VariableType finalReturnType = expectedReturnType;
+            final VariableType finalReturnType = expectedReturnType;
             Dependency[] deps = dependencies.toArray(new Dependency[0]);
             SwingUtilities.invokeLater(() -> {
                 Procedure currentProc = procedure != null ? procedure.getSelectedProcedure() : null;
@@ -366,10 +393,6 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         }
     }
 
-    protected AggregatedValidationResult validatePage(int page) {
-        return new AggregatedValidationResult.PASS();
-    }
-
     @Override
     public void openInEditingMode(ProceduralMixin generatableElement) {
         initialClassName = generatableElement.className;
@@ -401,10 +424,10 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             mixin.methodReturnType = method.getReturnType() != null ? method.getReturnType().getName() : "void";
             mixin.methodParameters = method.getParameters().stream()
                     .map(p -> p.getType().getName())
-                    .collect(java.util.stream.Collectors.toList());
+                    .collect(Collectors.toList());
             mixin.methodParameterNames = method.getParameters().stream()
                     .map(p -> p.getName())
-                    .collect(java.util.stream.Collectors.toList());
+                    .collect(Collectors.toList());
         }
 
         mixin.headTail = headTailSelector.getSelectedItem() instanceof String str ? str : "HEAD";

@@ -6,10 +6,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-<#if data.procedure?? && data.procedure.getName()?? && data.procedure.getName()?has_content && data.procedure.getName() != "null" && w.hasModElement(data.procedure.getName())>
-import ${package}.procedures.${data.procedure.getName()}Procedure;
-</#if>
-
 @Mixin(${data.className}.class)
 public abstract class ${name}Mixin {
 
