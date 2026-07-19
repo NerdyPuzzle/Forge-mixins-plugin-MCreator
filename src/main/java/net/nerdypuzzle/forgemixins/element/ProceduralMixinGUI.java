@@ -372,10 +372,15 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             if (isEntityClass(currentClass) && !hasEntityDependency) {
                 String depName = hasEntityName ? "mixinEntity" : "entity";
                 dependencies.add(new Dependency(depName, "entity"));
+                hasEntityDependency = true;
             }
             if (isItemStackClass(currentClass) && !hasItemStackDependency) {
                 String depName = hasItemstackName ? "mixinItemstack" : "itemstack";
                 dependencies.add(new Dependency(depName, "itemstack"));
+            }
+            
+            if (hasEntityDependency && !hasWorldDependency) {
+                dependencies.add(new Dependency("world", "world"));
             }
 
             String methodReturnType = method.getReturnType() != null ? method.getReturnType().getName() : "void";

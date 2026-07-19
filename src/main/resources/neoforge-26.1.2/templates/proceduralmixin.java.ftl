@@ -76,6 +76,21 @@ public abstract class ${name}Mixin {
                 </#if>
             </#list>
             
+            <#if !hasWorld && depsBuilder?seq_contains("world")>
+                <#assign entityVarName = needsImplicitEntity>
+                <#if entityVarName == "">
+                    <#list data.procedure.getDependencies(generator.getWorkspace()) as dep>
+                        <#if dep.getType() == "entity">
+                            <#assign entityVarName = dep.getName()>
+                            <#break>
+                        </#if>
+                    </#list>
+                </#if>
+                <#if entityVarName?has_content>
+                LevelAccessor world = ${entityVarName}.level();
+                </#if>
+            </#if>
+            
             <#assign procReturnType = data.procedure.getReturnValueType(generator.getWorkspace())!"">
             
             <#if data.methodReturnType != "void" && depsBuilder?seq_contains("returnValue")>
