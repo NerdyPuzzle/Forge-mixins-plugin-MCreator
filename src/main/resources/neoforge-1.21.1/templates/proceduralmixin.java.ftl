@@ -79,14 +79,9 @@ public abstract class ${name}Mixin {
             <#if !hasWorld && depsBuilder?seq_contains("world")>
                 <#assign entityVarName = needsImplicitEntity>
                 <#if entityVarName == "">
-                    <#list data.procedure.getDependencies(generator.getWorkspace()) as dep>
-                        <#if dep.getType() == "entity">
-                            <#assign entityVarName = dep.getName()>
-                            <#break>
-                        </#if>
-                    </#list>
+                    <#assign entityVarName = data.getFirstEntityDependencyOrNull()>
                 </#if>
-                <#if entityVarName?has_content>
+                <#if entityVarName?? && entityVarName?has_content>
                 LevelAccessor world = ${entityVarName}.level();
                 </#if>
             </#if>

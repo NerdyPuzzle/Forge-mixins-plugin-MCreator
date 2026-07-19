@@ -4,6 +4,7 @@ import net.mcreator.element.GeneratableElement;
 import net.mcreator.element.parts.procedure.Procedure;
 import net.mcreator.workspace.elements.ModElement;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,16 @@ public class ProceduralMixin extends GeneratableElement {
     public ProceduralMixin(ModElement element) {
         super(element);
         this.mixins = List.of(getModElement().getName() + "Mixin");
+    }
+
+    @Nullable
+    public String getFirstEntityDependencyOrNull() {
+        for (int i = 0; i < methodParameters.size(); i++) {
+            if (ProceduralMixinGUI.isEntityClass(methodParameters.get(i))) {
+                return methodParameterNames.get(i);
+            }
+        }
+        return null;
     }
 
 }

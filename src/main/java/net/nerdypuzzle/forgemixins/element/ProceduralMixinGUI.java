@@ -290,7 +290,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         return null;
     }
 
-    private boolean isEntityClass(String fqcn) {
+    public static boolean isEntityClass(String fqcn) {
         if (fqcn == null) return false;
         
         if (fqcn.startsWith("net.minecraft.world.entity.") || fqcn.startsWith("net.minecraft.client.player.")) {
