@@ -15,6 +15,7 @@ public class ProceduralMixin extends GeneratableElement {
     public String className = "";
     public String methodName = "";
     public String rawMethodName = "";
+    public boolean isStatic = false;
     public String methodReturnType = "void";
     public List<String> methodParameters = new ArrayList<>();
     public List<String> methodParameterNames = new ArrayList<>();
