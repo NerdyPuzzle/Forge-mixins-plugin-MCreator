@@ -26,11 +26,7 @@ import org.jboss.forge.roaster.model.source.MethodSource;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -71,13 +67,21 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         returnIndicator.setFont(returnIndicator.getFont().deriveFont(Font.ITALIC, 11f));
         returnIndicator.setForeground(Color.GRAY);
 
+        classNameSelector.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                if (value instanceof String str) {
+                    int lastDot = str.lastIndexOf('.');
+                    value = lastDot == -1 ? str : str.substring(lastDot + 1);
+                }
+                return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            }
+        });
+
         procedure = new ProcedureSelector(this.withEntry(L10N.t("mixin/mixin_procedure")), this.mcreator,
                 L10N.t("elementgui.proceduralmixin.procedure"), AbstractProcedureSelector.Side.BOTH,
                 true, VariableTypeLoader.BuiltInTypes.LOGIC).makeReturnValueOptional();
         procedure.refreshList(null);
-
-        injectCustomTyping(classNameSelector);
-        injectCustomTyping(methodNameSelector);
 
         classNameSelector.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -144,33 +148,6 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                 ? new AggregatedValidationResult.PASS() : new AggregatedValidationResult.FAIL(L10N.t("elementgui.error.select_options")));
     }
 
-    private void injectCustomTyping(SearchableComboBox<?> box) {
-        box.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                try {
-                    Method canSearchM = SearchableComboBox.class.getDeclaredMethod("canSearch");
-                    canSearchM.setAccessible(true);
-                    boolean canSearch = (Boolean) canSearchM.invoke(box);
-                    if (canSearch) {
-                        char c = e.getKeyChar();
-                        if ("(),.<>[]$".indexOf(c) != -1) {
-                            Field termF = SearchableComboBox.class.getDeclaredField("searchTerm");
-                            termF.setAccessible(true);
-                            String term = (String) termF.get(box);
-                            termF.set(box, term + c);
-                            
-                            Method filterM = SearchableComboBox.class.getDeclaredMethod("comboFilter");
-                            filterM.setAccessible(true);
-                            filterM.invoke(box);
-                            box.repaint();
-                        }
-                    }
-                } catch (Exception ex) {}
-            }
-        });
-    }
-
     @Override
     public @Nullable URI contextURL() throws URISyntaxException {
         return null;
@@ -193,9 +170,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                                         ZipEntry zipEntry = entries.nextElement();
                                         if (zipEntry.getName().endsWith(".java") && !zipEntry.getName().contains("package-info")) {
                                             String className = zipEntry.getName().replace("/", ".").replace(".java", "");
-                                            int lastDot = className.lastIndexOf('.');
-                                            String simpleName = lastDot == -1 ? className : className.substring(lastDot + 1);
-                                            classes.add(simpleName + " (" + className + ")");
+                                            classes.add(className);
                                         }
                                     }
                                 } catch (Exception ignored) {
@@ -222,12 +197,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                 classNameSelector.setItems(classes);
                 
                 if (current != null) {
-                    for (String item : classes) {
-                        if (item.equals(current) || item.endsWith("(" + current + ")")) {
-                            classNameSelector.setSelectedItem(item);
-                            break;
-                        }
-                    }
+                    classNameSelector.setSelectedItem(current);
                 }
                 
                 if (currentMethod != null) {
@@ -241,10 +211,6 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         methodNameSelector.removeAllItems();
         currentMethods.clear();
         if (className == null || className.isEmpty()) return;
-        
-        if (className.contains("(") && className.endsWith(")")) {
-            className = className.substring(className.lastIndexOf('(') + 1, className.length() - 1);
-        }
 
         try {
             ProjectJarManager jarManager = mcreator.getGenerator().getProjectJarManager();
@@ -495,19 +461,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         initialProcedure = generatableElement.procedure;
 
         if (generatableElement.className != null && !generatableElement.className.isEmpty()) {
-            String target = "(" + generatableElement.className + ")";
-            boolean found = false;
-            for (int i = 0; i < classNameSelector.getItemCount(); i++) {
-                String item = classNameSelector.getItemAt(i);
-                if (item != null && item.endsWith(target)) {
-                    classNameSelector.setSelectedItem(item);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                classNameSelector.setSelectedItem(generatableElement.className);
-            }
+            classNameSelector.setSelectedItem(generatableElement.className);
         }
         if (generatableElement.methodName != null && !generatableElement.methodName.isEmpty()) {
             methodNameSelector.setSelectedItem(generatableElement.methodName);
@@ -521,11 +475,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
     @Override
     public ProceduralMixin getElementFromGUI() {
         ProceduralMixin mixin = new ProceduralMixin(modElement);
-        String clazz = classNameSelector.getSelectedItem() instanceof String str ? str : "";
-        if (clazz.contains("(") && clazz.endsWith(")")) {
-            clazz = clazz.substring(clazz.lastIndexOf('(') + 1, clazz.length() - 1);
-        }
-        mixin.className = clazz;
+        mixin.className = classNameSelector.getSelectedItem() instanceof String str ? str : "";
         mixin.methodName = methodNameSelector.getSelectedItem() instanceof String str ? str : "";
 
         int index = methodNameSelector.getSelectedIndex();
