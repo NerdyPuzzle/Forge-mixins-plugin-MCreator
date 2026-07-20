@@ -369,7 +369,7 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
             }
             
             String currentClass = classNameSelector.getSelectedItem() instanceof String str ? str : "";
-            if (isEntityClass(currentClass) && !hasEntityDependency) {
+            if (isEntityClass(currentClass)) {
                 String depName = hasEntityName ? "mixinEntity" : "entity";
                 dependencies.add(new Dependency(depName, "entity"));
                 hasEntityDependency = true;
