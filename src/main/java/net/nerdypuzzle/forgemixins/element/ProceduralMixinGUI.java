@@ -262,6 +262,12 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
         if (javaType.equals("String")) {
             return "string";
         }
+        if (javaType.equals("InteractionResult")) {
+            return "actionresulttype";
+        }
+        if (javaType.equals("Direction")) {
+            return "direction";
+        }
         if (javaType.equals("Entity") || javaType.equals("LivingEntity")
                 || javaType.equals("Player") || javaType.equals("ServerPlayer")
                 || javaType.equals("Mob") || javaType.equals("PathfinderMob")
@@ -415,6 +421,8 @@ public class ProceduralMixinGUI extends ModElementGUI<ProceduralMixin> {
                     case "blockstate": expectedReturnType = VariableTypeLoader.BuiltInTypes.BLOCKSTATE; break;
                     case "damagesource": expectedReturnType = VariableTypeLoader.BuiltInTypes.DAMAGESOURCE; break;
                     case "vector": expectedReturnType = VariableTypeLoader.BuiltInTypes.VECTOR; break;
+                    case "actionresulttype": expectedReturnType = VariableTypeLoader.BuiltInTypes.ACTIONRESULTTYPE; break;
+                    case "direction": expectedReturnType = VariableTypeLoader.BuiltInTypes.DIRECTION; break;
                     default: expectedReturnType = VariableTypeLoader.BuiltInTypes.LOGIC; break;
                 }
             }

@@ -117,7 +117,7 @@ public abstract class ${name}Mixin {
                 if (!${procName}Procedure.execute(<#list depsBuilder as dep>${dep}<#sep>, </#list>)) {
                     ${callbackVar}.cancel();
                 }
-            <#elseif procReturnType == "number" || procReturnType == "logic" || procReturnType == "string" || procReturnType == "entity" || procReturnType == "itemstack" || procReturnType == "blockstate" || procReturnType == "damagesource" || procReturnType == "world" || procReturnType == "vector">
+            <#elseif procReturnType == "number" || procReturnType == "logic" || procReturnType == "string" || procReturnType == "entity" || procReturnType == "itemstack" || procReturnType == "blockstate" || procReturnType == "damagesource" || procReturnType == "world" || procReturnType == "vector" || procReturnType == "actionresulttype" || procReturnType == "direction">
                 <#if data.methodReturnType == "int" || data.methodReturnType == "float" || data.methodReturnType == "short" || data.methodReturnType == "byte" || data.methodReturnType == "long">
                     ${callbackVar}.setReturnValue((${data.methodReturnType}) ${procName}Procedure.execute(<#list depsBuilder as dep>${dep}<#sep>, </#list>));
                 <#else>
